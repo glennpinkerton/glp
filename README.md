@@ -1,5 +1,4 @@
 
-# glp
 non csw glenn stuff
 
 Tutorial examples and other learning stuff, in a tar file
