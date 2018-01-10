@@ -1,0 +1,36 @@
+
+    public static Connection glpConnect throws Throwable () {
+
+      try {
+
+          // The following note was on a tutorial site.  I
+          // take it at face value and it seems to work this way,
+          //
+          // The newInstance() call is a work around for some
+          // broken Java implementations
+
+          Class.forName("com.mysql.jdbc.Driver").newInstance();
+
+      }
+      catch (Exception ex) {
+          System.out.println ("Exception in LoadDriver main Method");
+          throw (ex);
+      }
+
+      Connection  conn = null;
+
+      try {
+        conn =
+           DriverManager.getConnection(
+              "jdbc:mysql://localhost/glp?" +
+              "user=glenn&password=Dog4-J3ssi3&useSSL=false");
+      }
+      catch (SQLException ex) {
+        System.out.println ("Exception in getConnection stuff."););
+        throw (ex);;
+      }
+      finally {
+        return conn;
+      }
+   }
+
