@@ -1,0 +1,22 @@
+
+
+#  To create run config:
+
+    Run  ->  Run Configurations
+
+    choose "Java Application"
+    choose New (left most icon at top of config list)
+
+    fill in dialog and save
+
+    can be run here via lower right run button
+
+#  To run the config without all the above (after it has been created)
+
+    click run icon in tool bar (the Run button above tool bar does not 
+      include the config I did above).
+
+    the down arrow to right of run
+      icon (white arrow in green filled circle)
+      the down arrow just right of icon allows selecting from
+      run configs

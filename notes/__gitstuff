@@ -1,0 +1,46 @@
+
+### personal access token
+
+7855b17de6cc1c98982f67e8dd7a160b7bcd5b74
+
+
+##  github path
+
+https://github.com/glennpinkerton/csw_master.git 
+
+
+## to clone branch
+
+git clone -b branch_name path
+
+## to push to a branch
+
+git push origin "branchname"
+
+or, if in a work area which is a clone of a branch
+
+git push
+
+
+## to pull from master
+
+git pull origin master
+
+## after pull on master to a branch not yet changed
+## to get the branch on github in sync
+
+git push
+
+
+## to pull from branch on github
+
+git pull
+
+
+## to uncommit a file prior to push (most recent commit only)
+
+git rm  filename
+git commit --amend
+
+
+
