@@ -10,27 +10,38 @@
 
 
 # Looks like separating strings with commas adds the extra space
-# but concatenating wit + does not add the space.
+# but concatenating with + does not add the space.  ?? 
 
 def menu(list, question):
+
+  while True:
+
     for entry in list:
         ichoice = list.index(entry)
         ichoice += 1
-#        print(str(ichoice) , ") " + entry)  # this adds a comma after ichoice and before )
         print(str(ichoice) + ") " + entry)
 
-    choise_to_return = 0
+    choice_to_return = 0
     try:
         choice_to_return = int(input(question))
-    except:
-        choice_to_return = 0
+        break
+    except SyntaxError as e:
+        print ("");
+        print ("SyntaxError: " + str(e))
+    except ValueError as e:
+        print ("");
+        print ("ValueError: " + str(e))
+    finally:
+        print ("")
+        print ("Make sure to choose a number from the list.")
+        print ("")
 
-    return choice_to_return
+  return choice_to_return
 
 
 tlist = ['do this', 'or do that'];
 
-choice = menu (tlist, "Who cares")
+choice = menu (tlist, "Who cares: ")
 
 print (" ")
 print (" ")
