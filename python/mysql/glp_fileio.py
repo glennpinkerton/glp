@@ -23,10 +23,9 @@ class GLPFileIO:
 # between float coordinates and the int coords put into
 # the random access files.
 
-  def __init__ (self, dname, xmin, ymin, xmax, ymax,\
+  def __init__ (self, xmin, ymin, xmax, ymax,\
                       ixmin, iymin, ixmax, iymax):
 
-    self.dirname = dname
     self.xmin = xmin;
     self.ymin = ymin;
     self.xmax = xmax;
@@ -82,6 +81,10 @@ class GLPFileIO:
 # to read past the end of the file.  If this mismatch
 # occurs, an IOError exception is raised.
     if len(iblob) != maxint:
+      print ("")
+      print ("  maxint = " + str(maxint) + \
+             "  blob length = " + str(len(iblob)))
+      print ("")
       raise IOError\
       ("Could not read enough data into next blob.")
 

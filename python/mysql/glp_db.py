@@ -7,7 +7,7 @@
 #  Most of the web instructions for using mysql (at least those
 #  which I looked at) say to import PyMySQL.  The PyMySQL does
 #  not work on my linux box (fedora 26).  I found a suggestion
-#  to use all lower case, anf that works for me.
+#  to use all lower case, and that works for me.
 
 import pymysql
 
@@ -33,7 +33,12 @@ class ObjFilePos:
     self.file_pos = f_pos
 
 
+
+
 #  Encapsulate the glp database stuff in class GLPDB
+#  This is a very simple "spatial" data base which
+#  can be populated with random "spatial" objects
+#  so I (Glenn) can work with mysql in python.
 
 class GLPDB:
 
@@ -51,22 +56,26 @@ class GLPDB:
         sq = "select * from global_stuff"
         curs.execute(sq)
         for (dirname, xmin, ymin, xmax, ymax, ixmin, iymin, ixmax, iymax) in curs:
-          self.fio = glp_fileio.GLPFileIO (dirname,\
-                                           xmin, ymin,\
-                                           xmax, ymax,\
-                                           ixmin, iymin,\
-                                           ixmax, iymax)
           self.dirname = dirname
+          self.xmin = xmin
+          self.ymin = ymin
+          self.xmax = xmax
+          self.ymax = ymax
+          self.ixmin = ixmin
+          self.iymin = iymin
+          self.ixmax = ixmax
+          self.iymax = iymax
+          self.fio = glp_fileio.GLPFileIO (xmin, ymin, xmax, ymax,\
+                                ixmin, iymin, ixmax, iymax)
           break
 
     finally:
       pass
-                                       
 
 # !! end of __init__ constructor
 
 
-# Execute the bbox select query
+# Method to execute the bbox select query
 
   def __do_bbox_query_ (self, sq):
 
@@ -79,23 +88,10 @@ class GLPDB:
         rlst.append(ofp)
 
       return rlst          
+
+# !! end of __do_bbox_query_ method
     
     
-
-
-#  Method for trivial file io test.
-
-  def test_fileio (self):
-
-    with open ("/home/gpinkerton/data/glp_points_1.dat", "r+b") as tf:
-      plist = self.fio.read_points (tf, 0)
-      print ("")
-      for upt in plist:
-        print ("  x = " + str(upt.x) + "  y = " + str(upt.y))
-
-# !! end of test_fileio method
-
-
 #  Method to disconnect from the mysql server
 
   def disconnect (self):
@@ -148,12 +144,6 @@ class GLPDB:
   def test_bbox (self):
 
     try:
-      fpts = open (self.dirname + "/glp_points_1.dat", "rb")
-    except IOError:
-      print ("****** Cannot open file: glp_points.dat ******")
-      return
-
-    try:
       fout = open ("py_bbox_sel.out", "w")
     except IOError:
       print ("****** Cannot open file: py_bbox_sel.out ******")
@@ -184,11 +174,8 @@ class GLPDB:
         fout.write ("     number of rows found = " + sl + "\n")
         print ("\n     number of rows found = " + sl + "\n")
 
+        last_file_id = -1
         for ofp in file_pos_list:
-      #    print ("")
-      #    print ("object id = " + str(ofp.object_id))
-      #    print ("file id = " + str(ofp.file_id))
-      #    print ("file pos = " + str(ofp.file_pos))
           fout.write ("\n")
           fout.write ("object_id = " + str(ofp.object_id))
           fout.write ("\n")
@@ -196,11 +183,31 @@ class GLPDB:
           fout.write ("\n")
           fout.write ("file_pos = " + str(ofp.file_pos))
           fout.write ("\n")
+
+          if last_file_id != ofp.file_id:
+            try:
+              if last_file_id != -1  and  not fpts.closed:
+                fpts.close()
+
+              fpts = open (self.dirname + "/glp_points_" +\
+                           str(ofp.file_id) + ".dat", "rb")
+              last_file_id = ofp.file_id
+            except IOError:
+              print ("")
+              print ("Error opening points random access file " +\
+                      str(ofp.file_id))
+              print ("")
+              raise
+
+       # end of open file_id block
+
           plist = self.fio.read_points (fpts, ofp.file_pos)
+          fout.write (" npts = " + str(len(plist)))
+          fout.write ("\n")
           for upt in plist:
+       # the f just prior to the quote signals a "formatted" string
+       # the curly braces surround value:format pairs.
             fout.write(f"  x = {upt.x:.5f}  y = {upt.y:.5f}")
-#            fout.write("  x = " + str(round(upt.x, 5)) +\
-#                       "  y = " + str(round(upt.y, 5)))
             fout.write ("\n")
 
 
@@ -210,7 +217,7 @@ class GLPDB:
         if not fout.closed:
           fout.close()
         if not fpts.closed:
-          fout.close()
+          fpts.close()
         raise
 
       tend = time.time() 
@@ -228,7 +235,7 @@ class GLPDB:
     if not fout.closed:
       fout.close()
     if not fpts.closed:
-      fout.close()
+      fpts.close()
 
     return
       
