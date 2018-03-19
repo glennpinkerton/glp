@@ -143,14 +143,9 @@ class GLPDB:
 
   def test_bbox (self):
 
-    try:
-      fout = open ("py_bbox_sel.out", "w")
-    except IOError:
-      print ("****** Cannot open file: py_bbox_sel.out ******")
-      return
-
     BBERR = "Illegal bbox definition, try again"
     while True:
+
       try:
         print ("")
         c = input("Enter lower left x y and upper right x y: ")
@@ -163,16 +158,74 @@ class GLPDB:
           print ("Exception from re.split: " + str(e))
           continue
 
+        rpair = self.get_bbox_objects (float(bblst[0]), float(bblst[1]),
+                                       float(bblst[2]), float(bblst[3]))
+
+      except Exception as e:
+        print ("Exception in test_bbox: " + str(e))
+        raise
+
+      sel_count = rpair[0]
+      delta_time = rpair[1]
+
+      print ("")
+      print ("")
+      print ("number of objects selected = " + str(sel_count))
+      print ("")
+      print ("elapsed time for query = " + str(delta_time))
+      print ("")
+
+  #  ! end of while true loop to prompt for bbox limits and process them
+
+
+  # comes here if no exception happened 
+  # still may need to close the output and point files
+
+    try:
+      if not fout.closed:
+        fout.close()
+      if not fpts.closed:
+        fpts.close()
+    except:
+      pass
+
+    return
+      
+
+# !! end of test_bbox method
+
+
+
+
+#  function to prompt for bbox limits, get the obkects intersecting
+#  the bbox and wite them to a file.
+
+  def get_bbox_objects (self, xmin, ymin, xmax, ymax):
+
+    try:
+      fout = open ("py_bbox_sel.out", "w")
+    except IOError:
+      print ("****** Cannot open file: py_bbox_sel.out ******")
+      return
+
+    return_pair = []
+
+    BBERR = "Illegal bbox definition, try again"
+    try:
+
         tstart = time.time()
 
-        sq = self.__create_bbox_query_ (float(bblst[0]), float(bblst[1]),
-                                        float(bblst[2]), float(bblst[3]))
+        sq = self.__create_bbox_query_ (xmin, ymin, xmax, ymax)
         file_pos_list = self.__do_bbox_query_ (sq)
-        sl = str(len(file_pos_list))
+        sel_count = len(file_pos_list)
+        sl = str(sel_count)
 
+        return_pair.append(sel_count)
+
+        c = str(xmin) + " " + str(ymin) + " " + str(xmax) + " " + str(ymax)
         fout.write ("\n==== new search bbox =  " + c + "  ====\n")
         fout.write ("     number of rows found = " + sl + "\n")
-        print ("\n     number of rows found = " + sl + "\n")
+  #      print ("\n     number of rows found = " + sl + "\n")
 
         last_file_id = -1
         for ofp in file_pos_list:
@@ -211,7 +264,7 @@ class GLPDB:
             fout.write ("\n")
 
 
-      except Exception as e:
+    except Exception as e:
         print ("Exception in test_bbox: " + str(e))
     # close output file and point before raising the exception
         if not fout.closed:
@@ -220,27 +273,27 @@ class GLPDB:
           fpts.close()
         raise
 
-      tend = time.time() 
-      delta_time = round(tend - tstart, 2)
+    tend = time.time() 
+    delta_time = round(tend - tstart, 2)
 
-      print ("")
-      print ("elapsed time for query = " + str(delta_time))
-      print ("")
-
-  #  ! end of while true loop to prompt for bbox limits and process them
-
+    return_pair.append(delta_time)
 
   # comes here if no exception happened 
   # still probably need to close the output and point files
     if not fout.closed:
       fout.close()
-    if not fpts.closed:
-      fpts.close()
 
-    return
+    try:
+      if not fpts.closed:
+        fpts.close()
+
+    except:
+      pass
+
+    return return_pair
       
 
-# !! end of test_bbox method
+# !! end of get_bbox_objects method
 
 
 
@@ -252,8 +305,9 @@ class GLPDB:
 # make a class and print the first "line" points in file
 # This code is not part of the GLPDB class
 
-db = GLPDB ()
-db.test_bbox()
+if __name__ == "__main__":
+  db = GLPDB ()
+  db.test_bbox()
 
 
 
